@@ -50,13 +50,13 @@ ui <- fluidPage(
                                  "Double",
                                  "Triple",
                                  "Home Run")),
-      img(src = "USTlogo.jpg", height = 100, width = 235)
+      img(src = "UST.logo_.c.jpg", height = 100, width = 235)
     ),
     mainPanel(
       tags$head(tags$script(src = "message-handler.js")),
       actionButton(style ="display:inline-block;width:20%;text-align:center;","do", "Next", style="float:right"),
       br(),
-      img(src = "field.png", height = 450, width = 450),
+      img(src = "field.jpg", height = 450, width = 450),
       br(),
       tags$head(tags$script(src = "message-handler.js")),
       actionButton(style ="display:inline-block;width:20%;text-align:center;","do", "End Game", style="float:right")
