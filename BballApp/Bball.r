@@ -1,6 +1,6 @@
 library(shiny)
 
-#fields we want to save
+# fields we want to save
 fields <- c("date", "team", "player", "location", "hit", "result")
 
 ui <- fluidPage(
@@ -8,69 +8,80 @@ ui <- fluidPage(
   titlePanel("UST Men's Baseball"),
   sidebarLayout(
     sidebarPanel(
-      dateInput("date", 
-                label = "Date:", 
-                value = NULL, 
-                min = NULL, 
-                max = NULL,
-                format = "mm-dd-yyyy", 
-                startview = "month", 
-                weekstart = 0,
-                language = "en", 
-                width = NULL, 
-                autoclose = TRUE,
-                datesdisabled = NULL, 
-                daysofweekdisabled = NULL),
-      selectInput("team", 
-                  label = "Team:",
-                  choices = list("Augsburg University", 
-                                 "Bethel University",
-                                 "Carleton College",
-                                 "Concordia (III.)",
-                                 "Concordia-Moorhead College",
-                                 "Gustavus Adolphus College",
-                                 "Hamline University",
-                                 "Macalester College",
-                                 "Saint John's University",
-                                 "Saint Mary's University",
-                                 "St. Olaf College",
-                                 "University of St. Thomas",
-                                 "UW-La Crosse",
-                                 "UW-Oshkosh",
-                                 "UW-Stout",
-                                 "Wartburg"
-                                 ),
-                  selected = "University of St. Thomas"),
-      numericInput("player", 
-                   label = "Player Number:", 
-                   value = 00, 
-                   min = 00, 
-                   max = 99, 
-                   step = 1,
-                   width = NULL),
-      numericInput("location", 
-                   label = "Location of Hit:", 
-                   value = 00, 
-                   min = 0, 
-                   max = 12, 
-                   step = 1,
-                   width = NULL),
-      selectInput("hit", 
-                  label = "Type of Hit:",
-                  choices = list("None",
-                                 "Ground Ball",
-                                 "Line Drive",
-                                 "Pop Fly")),
-      selectInput("result", 
-                  label = "Batting Result:",
-                  choices = list("Out",
-                                 "Walk",
-                                 "Single",
-                                 "Double",
-                                 "Triple",
-                                 "Home Run")),
+      dateInput("date",
+        label = "Date:",
+        value = NULL,
+        min = NULL,
+        max = NULL,
+        format = "mm-dd-yyyy",
+        startview = "month",
+        weekstart = 0,
+        language = "en",
+        width = NULL,
+        autoclose = TRUE,
+        datesdisabled = NULL,
+        daysofweekdisabled = NULL
+      ),
+      selectInput("team",
+        label = "Team:",
+        choices = list(
+          "Augsburg University",
+          "Bethel University",
+          "Carleton College",
+          "Concordia (III.)",
+          "Concordia-Moorhead College",
+          "Gustavus Adolphus College",
+          "Hamline University",
+          "Macalester College",
+          "Saint John's University",
+          "Saint Mary's University",
+          "St. Olaf College",
+          "University of St. Thomas",
+          "UW-La Crosse",
+          "UW-Oshkosh",
+          "UW-Stout",
+          "Wartburg",
+          "Other"
+        ),
+        selected = "University of St. Thomas"
+      ),
+      numericInput("player",
+        label = "Player Number:",
+        value = 00,
+        min = 00,
+        max = 99,
+        step = 1,
+        width = NULL
+      ),
+      numericInput("location",
+        label = "Location of Hit:",
+        value = 00,
+        min = 0,
+        max = 12,
+        step = 1,
+        width = NULL
+      ),
+      selectInput("hit",
+        label = "Type of Hit:",
+        choices = list(
+          "None",
+          "Ground Ball",
+          "Line Drive",
+          "Pop Fly"
+        )
+      ),
+      selectInput("result",
+        label = "Batting Result:",
+        choices = list(
+          "Out",
+          "Walk",
+          "Single",
+          "Double",
+          "Triple",
+          "Home Run"
+        )
+      ),
       img(src = "UST.logo_.c.jpg", height = "100%", width = "100%")
-      
     ),
     mainPanel(
       img(src = "field.png", height = "75%", width = "75%"),
@@ -115,8 +126,7 @@ server <- function(input, output) {
   output$responses <- DT::renderDataTable({
     input$submit
     loadData()
-  })   
- 
+  })
 }
 
 shinyApp(ui = ui, server = server)
