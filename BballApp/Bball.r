@@ -110,16 +110,55 @@ loadData <- function() {
   gs_read_csv(sheet)
 }
 
-
-
-
-server <- function(input, output) {
+server <- function(input, output, session) {
   formData <- reactive({
     data <- sapply(fields, function(x) input[[x]])
     data
   })
   observeEvent(input$submit, {
     saveData(formData())
+    # updatedateInput(session, "date")
+    updateSelectInput(session, "team",
+      choices = c(
+        "Augsburg University",
+        "Bethel University",
+        "Carleton College",
+        "Concordia (III.)",
+        "Concordia-Moorhead College",
+        "Gustavus Adolphus College",
+        "Hamline University",
+        "Macalester College",
+        "Saint John's University",
+        "Saint Mary's University",
+        "St. Olaf College",
+        "University of St. Thomas",
+        "UW-La Crosse",
+        "UW-Oshkosh",
+        "UW-Stout",
+        "Wartburg",
+        "Other"
+      ), selected = "University of St. Thomas"
+    )
+    updateNumericInput(session, "player", value = 0)
+    updateNumericInput(session, "location", value = 0)
+    updateSelectInput(session, "hit",
+      choices = c(
+        "None",
+        "Ground Ball",
+        "Line Drive",
+        "Pop Fly"
+      ), selected = "None"
+    )
+    updateSelectInput(session, "result",
+      choices = c(
+        "Out",
+        "Walk",
+        "Single",
+        "Double",
+        "Triple",
+        "Home Run"
+      ), selected = "Out"
+    )
   })
   # Show the previous responses
   # (update with current response when Submit is clicked)
