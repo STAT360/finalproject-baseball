@@ -81,10 +81,10 @@ ui <- fluidPage(
           "Home Run"
         )
       ),
-      img(src = "UST.logo_.c.jpg", height = "100%", width = "100%")
+      img(src = "USTlogo.jpg", height = "100%", width = "100%")
     ),
     mainPanel(
-      img(src = "field.png", height = "75%", width = "75%"),
+      img(src = "diamond.png", height = "85%", width = "85%"),
       br(),
       actionButton("submit", "Submit", style = "float:right")
     )
