@@ -13,7 +13,7 @@ ui <- fluidPage(
                 value = NULL, 
                 min = NULL, 
                 max = NULL,
-                format = "mm-dd-yy", 
+                format = "mm-dd-yyyy", 
                 startview = "month", 
                 weekstart = 0,
                 language = "en", 
@@ -26,13 +26,20 @@ ui <- fluidPage(
                   choices = list("Augsburg University", 
                                  "Bethel University",
                                  "Carleton College",
-                                 "Concordia College",
+                                 "Concordia (III.)",
+                                 "Concordia-Moorhead College",
                                  "Gustavus Adolphus College",
                                  "Hamline University",
                                  "Macalester College",
                                  "Saint John's University",
+                                 "Saint Mary's University",
                                  "St. Olaf College",
-                                 "University of St. Thomas"),
+                                 "University of St. Thomas",
+                                 "UW-La Crosse",
+                                 "UW-Oshkosh",
+                                 "UW-Stout",
+                                 "Wartburg"
+                                 ),
                   selected = "University of St. Thomas"),
       numericInput("player", 
                    label = "Player Number:", 
@@ -63,6 +70,7 @@ ui <- fluidPage(
                                  "Triple",
                                  "Home Run")),
       img(src = "UST.logo_.c.jpg", height = "100%", width = "100%")
+      
     ),
     mainPanel(
       img(src = "field.png", height = "75%", width = "75%"),
@@ -107,7 +115,8 @@ server <- function(input, output) {
   output$responses <- DT::renderDataTable({
     input$submit
     loadData()
-  })     
+  })   
+ 
 }
 
 shinyApp(ui = ui, server = server)
