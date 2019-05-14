@@ -93,6 +93,8 @@ ui <- fluidPage(
       img(src = "USTlogo.jpg", height = "100%", width = "100%")
     ),
     mainPanel(
+      textOutput("selected_var1"),
+      textOutput("selected_var2"),
       img(src = "diamond.png", height = "85%", width = "85%"),
       br(),
       actionButton("submit", "Submit", style = "float:right")
@@ -176,6 +178,12 @@ server <- function(input, output, session) {
         "Home Run"
       ), selected = "Out"
     )
+    output$selected_var1 <- renderText({ 
+    paste("Player number", input$player, "from", input$team, "typically hits the ball:")
+        })
+    output$selected_var2 <- renderText({ 
+    paste("Need the data")
+        }) 
   })
   # Show the previous responses
   # (update with current response when Submit is clicked)
