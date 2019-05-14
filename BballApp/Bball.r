@@ -1,7 +1,7 @@
 library(shiny)
 
 # fields we want to save
-fields <- c("date", "team", "player", "location", "hit", "result")
+fields <- c("date", "team", "player", "pitch", "location", "hit", "result")
 
 ui <- fluidPage(
   DT::dataTableOutput("responses", width = 300), tags$hr(),
@@ -52,6 +52,15 @@ ui <- fluidPage(
         max = 99,
         step = 1,
         width = NULL
+      ),
+      selectInput("pitch",
+        label = "Type of Pitch:",
+        choices = list(
+          "Fastball",
+          "Curve Ball",
+          "Slider",
+          "Change Up"
+        )
       ),
       numericInput("location",
         label = "Location of Hit:",
@@ -140,6 +149,14 @@ server <- function(input, output, session) {
       ), selected = "University of St. Thomas"
     )
     updateNumericInput(session, "player", value = 0)
+    updateSelectInput(session, "pitch",
+      choices = c(
+        "Fastball",
+        "Curve Ball",
+        "Slider",
+        "Change Up"
+      ), selected = "Fastball"
+    )
     updateNumericInput(session, "location", value = 0)
     updateSelectInput(session, "hit",
       choices = c(
