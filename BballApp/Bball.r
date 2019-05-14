@@ -182,7 +182,7 @@ server <- function(input, output, session) {
     paste("Player number", input$player, "from", input$team, "typically hits the ball:")
         })
     output$selected_var2 <- renderText({ 
-    paste("Need the data")
+    paste(count(responses), input$player, input$team) 
         }) 
   })
   # Show the previous responses
