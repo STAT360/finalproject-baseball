@@ -4,23 +4,11 @@ library(shiny)
 fields <- c("date", "team", "player", "pitch", "location", "hit", "result")
 
 ui <- fluidPage(
-  DT::dataTableOutput("responses", width = 300), tags$hr(),
   titlePanel("UST Men's Baseball"),
   sidebarLayout(
     sidebarPanel(
-      dateInput("date",
-        label = "Date:",
-        value = NULL,
-        min = NULL,
-        max = NULL,
-        format = "mm-dd-yyyy",
-        startview = "month",
-        weekstart = 0,
-        language = "en",
-        width = NULL,
-        autoclose = TRUE,
-        datesdisabled = NULL,
-        daysofweekdisabled = NULL
+      textInput("date",
+                label = "Date (mm-dd-yyyy):"
       ),
       selectInput("team",
         label = "Team:",
@@ -93,11 +81,19 @@ ui <- fluidPage(
       img(src = "USTlogo.jpg", height = "100%", width = "100%")
     ),
     mainPanel(
-      textOutput("selected_var1"),
-      textOutput("selected_var2"),
-      img(src = "diamond.png", height = "85%", width = "85%"),
-      br(),
-      actionButton("submit", "Submit", style = "float:right")
+      tabsetPanel(type = "tabs",
+                  tabPanel("Field",
+                           img(src = "diamond.png", height = "85%", width = "85%"),
+                           br(),
+                           actionButton("submit", "Submit", style = "float:right")),
+                  tabPanel("Data",
+                           DT::dataTableOutput("responses", width = 300), tags$hr()
+                           ),
+                  tabPanel("Likelihood", 
+                           textOutput("selected_var1"),
+                           textOutput("selected_var2"))
+    
+    )
     )
   )
 )
@@ -121,6 +117,12 @@ loadData <- function() {
   gs_read_csv(sheet)
 }
 
+likelihood <- gs_title("responses")
+like <- likelihood %>% gs_read(ws = "Sheet1")
+loc <- like %>% 
+  pull(location)
+dat <-  like %>% group_by(team, player) %>% count(location) 
+
 server <- function(input, output, session) {
   formData <- reactive({
     data <- sapply(fields, function(x) input[[x]])
@@ -128,7 +130,6 @@ server <- function(input, output, session) {
   })
   observeEvent(input$submit, {
     saveData(formData())
-    # updatedateInput(session, "date")
     updateSelectInput(session, "team",
       choices = c(
         "Augsburg University",
@@ -182,7 +183,7 @@ server <- function(input, output, session) {
     paste("Player number", input$player, "from", input$team, "typically hits the ball:")
         })
     output$selected_var2 <- renderText({ 
-    paste("Need the data")
+      paste(dat)
         }) 
   })
   # Show the previous responses
