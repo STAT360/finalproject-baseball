@@ -145,8 +145,11 @@ loadData <- function() {
 
 # data wrangling for likelihood table
 likelihood <- gs_title("responses")
-like <- likelihood %>% gs_read(ws = "Sheet1")
-l <- like %>% group_by(team, player, location) %>% summarise(n = n())
+like <- likelihood %>%
+  gs_read(ws = "Sheet1")
+l <- like %>%
+  group_by(team, player, location) %>%
+  summarise(n = n())
 
 # server
 server <- function(input, output, session) {
