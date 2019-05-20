@@ -3,13 +3,18 @@ library(shiny)
 # fields we want to save
 fields <- c("date", "team", "player", "pitch", "location", "hit", "result")
 
+#user interface
 ui <- fluidPage(
+  #title
   titlePanel("UST Men's Baseball"),
+  #sidebar
   sidebarLayout(
     sidebarPanel(
+      #input a date
       textInput("date",
-                label = "Date (mm-dd-yyyy):"
+        label = "Date (mm-dd-yyyy):"
       ),
+      #choose a team
       selectInput("team",
         label = "Team:",
         choices = list(
@@ -31,8 +36,10 @@ ui <- fluidPage(
           "Wartburg",
           "Other"
         ),
+        #default team selection
         selected = "University of St. Thomas"
       ),
+      #input a player number
       numericInput("player",
         label = "Player Number:",
         value = 00,
@@ -41,6 +48,7 @@ ui <- fluidPage(
         step = 1,
         width = NULL
       ),
+      #choose a type of pitch
       selectInput("pitch",
         label = "Type of Pitch:",
         choices = list(
@@ -50,6 +58,7 @@ ui <- fluidPage(
           "Change Up"
         )
       ),
+      #input location number
       numericInput("location",
         label = "Location of Hit:",
         value = 00,
@@ -58,6 +67,7 @@ ui <- fluidPage(
         step = 1,
         width = NULL
       ),
+      #choose a type of hit
       selectInput("hit",
         label = "Type of Hit:",
         choices = list(
@@ -67,6 +77,7 @@ ui <- fluidPage(
           "Pop Fly"
         )
       ),
+      #choose a batting result
       selectInput("result",
         label = "Batting Result:",
         choices = list(
@@ -78,58 +89,80 @@ ui <- fluidPage(
           "Home Run"
         )
       ),
+      #UST logo image
       img(src = "USTlogo.jpg", height = "100%", width = "100%")
     ),
+    #main panel
     mainPanel(
-      tabsetPanel(type = "tabs",
-                  tabPanel("Field",
-                           img(src = "diamond.png", height = "85%", width = "85%"),
-                           br(),
-                           actionButton("submit", "Submit", style = "float:right")),
-                  tabPanel("Data",
-                           DT::dataTableOutput("responses", width = 300), tags$hr()
-                           ),
-                  tabPanel("Likelihood", 
-                           textOutput("selected_var1"),
-                           textOutput("selected_var2"))
-    
-    )
+      #tabs
+      tabsetPanel(
+        type = "tabs",
+        #tab 1
+        tabPanel(
+          "Field",
+          #field with numbered locations image
+          img(src = "diamond.png", height = "85%", width = "85%"),
+          br(),
+          #submit button
+          actionButton("submit", "Submit", style = "float:right")
+        ),
+        #tab 2
+        tabPanel(
+          "Data",
+          #create a container for response table
+          DT::dataTableOutput("responses"), tags$hr()
+        ),
+        #tab 3
+        tabPanel(
+          "Likelihood",
+          #create a container for likelihood table
+          DT::dataTableOutput("likeli"), tags$hr()
+        )
+      )
     )
   )
 )
 
+#load packages
 library(googlesheets)
 suppressPackageStartupMessages(library(dplyr))
 
 table <- "responses"
 
 saveData <- function(data) {
-  # Grab the Google Sheet
+  #grab the google sheet
   sheet <- gs_title(table)
-  # Add the data as a new row
+  #add the data as a new row
   gs_add_row(sheet, input = data)
 }
 
 loadData <- function() {
-  # Grab the Google Sheet
+  #grab the google sheet
   sheet <- gs_title(table)
-  # Read the data
+  #read the data
   gs_read_csv(sheet)
 }
 
+#data wrangling for likelihood table
 likelihood <- gs_title("responses")
 like <- likelihood %>% gs_read(ws = "Sheet1")
-loc <- like %>% 
-  pull(location)
-dat <-  like %>% group_by(team, player) %>% count(location) 
+l <- like %>% group_by(team, player, location) %>% summarise(n = n())
+dataF <- l %>%
+  group_by(team, player, location, n) %>%
+  summarize(percent := n / sum(n) * 100, by = "team,player,location")
 
+
+#server
 server <- function(input, output, session) {
+  #collect form data
   formData <- reactive({
     data <- sapply(fields, function(x) input[[x]])
     data
   })
+  #save form data when submit button is clicked
   observeEvent(input$submit, {
     saveData(formData())
+    #after submit, defaul team to UST
     updateSelectInput(session, "team",
       choices = c(
         "Augsburg University",
@@ -151,7 +184,9 @@ server <- function(input, output, session) {
         "Other"
       ), selected = "University of St. Thomas"
     )
+    #after submit, defaul player to 0
     updateNumericInput(session, "player", value = 0)
+    #after submit, defaul pitch to fastball
     updateSelectInput(session, "pitch",
       choices = c(
         "Fastball",
@@ -160,7 +195,9 @@ server <- function(input, output, session) {
         "Change Up"
       ), selected = "Fastball"
     )
+    #after submit, defaul location to 0
     updateNumericInput(session, "location", value = 0)
+    #after submit, defaul hit to none
     updateSelectInput(session, "hit",
       choices = c(
         "None",
@@ -169,6 +206,7 @@ server <- function(input, output, session) {
         "Pop Fly"
       ), selected = "None"
     )
+    #after submit, defaul result to out
     updateSelectInput(session, "result",
       choices = c(
         "Out",
@@ -179,19 +217,18 @@ server <- function(input, output, session) {
         "Home Run"
       ), selected = "Out"
     )
-    output$selected_var1 <- renderText({ 
-    paste("Player number", input$player, "from", input$team, "typically hits the ball:")
-        })
-    output$selected_var2 <- renderText({ 
-      paste(dat)
-        }) 
   })
-  # Show the previous responses
-  # (update with current response when Submit is clicked)
+  #show previous responses update with current response when submit is clicked
   output$responses <- DT::renderDataTable({
     input$submit
     loadData()
   })
+  #display likelihood data table 
+  output$likeli <- DT::renderDataTable(
+    dataF,
+    filter = "top"
+  )
 }
 
+#run the app
 shinyApp(ui = ui, server = server)
