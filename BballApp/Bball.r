@@ -3,18 +3,18 @@ library(shiny)
 # fields we want to save
 fields <- c("date", "team", "player", "pitch", "location", "hit", "result")
 
-#user interface
+# user interface
 ui <- fluidPage(
-  #title
+  # title
   titlePanel("UST Men's Baseball"),
-  #sidebar
+  # sidebar
   sidebarLayout(
     sidebarPanel(
-      #input a date
+      # input a date
       textInput("date",
         label = "Date (mm-dd-yyyy):"
       ),
-      #choose a team
+      # choose a team
       selectInput("team",
         label = "Team:",
         choices = list(
@@ -36,10 +36,10 @@ ui <- fluidPage(
           "Wartburg",
           "Other"
         ),
-        #default team selection
+        # default team selection
         selected = "University of St. Thomas"
       ),
-      #input a player number
+      # input a player number
       numericInput("player",
         label = "Player Number:",
         value = 00,
@@ -48,7 +48,7 @@ ui <- fluidPage(
         step = 1,
         width = NULL
       ),
-      #choose a type of pitch
+      # choose a type of pitch
       selectInput("pitch",
         label = "Type of Pitch:",
         choices = list(
@@ -58,7 +58,7 @@ ui <- fluidPage(
           "Change Up"
         )
       ),
-      #input location number
+      # input location number
       numericInput("location",
         label = "Location of Hit:",
         value = 00,
@@ -67,7 +67,7 @@ ui <- fluidPage(
         step = 1,
         width = NULL
       ),
-      #choose a type of hit
+      # choose a type of hit
       selectInput("hit",
         label = "Type of Hit:",
         choices = list(
@@ -77,7 +77,7 @@ ui <- fluidPage(
           "Pop Fly"
         )
       ),
-      #choose a batting result
+      # choose a batting result
       selectInput("result",
         label = "Batting Result:",
         choices = list(
@@ -89,33 +89,33 @@ ui <- fluidPage(
           "Home Run"
         )
       ),
-      #UST logo image
+      # UST logo image
       img(src = "USTlogo.jpg", height = "100%", width = "100%")
     ),
-    #main panel
+    # main panel
     mainPanel(
-      #tabs
+      # tabs
       tabsetPanel(
         type = "tabs",
-        #tab 1
+        # tab 1
         tabPanel(
           "Field",
-          #field with numbered locations image
+          # field with numbered locations image
           img(src = "diamond.png", height = "85%", width = "85%"),
           br(),
-          #submit button
+          # submit button
           actionButton("submit", "Submit", style = "float:right")
         ),
-        #tab 2
+        # tab 2
         tabPanel(
           "Data",
-          #create a container for response table
+          # create a container for response table
           DT::dataTableOutput("responses"), tags$hr()
         ),
-        #tab 3
+        # tab 3
         tabPanel(
           "Likelihood",
-          #create a container for likelihood table
+          # create a container for likelihood table
           DT::dataTableOutput("likeli"), tags$hr()
         )
       )
@@ -123,27 +123,27 @@ ui <- fluidPage(
   )
 )
 
-#load packages
+# load packages
 library(googlesheets)
 suppressPackageStartupMessages(library(dplyr))
 
 table <- "responses"
 
 saveData <- function(data) {
-  #grab the google sheet
+  # grab the google sheet
   sheet <- gs_title(table)
-  #add the data as a new row
+  # add the data as a new row
   gs_add_row(sheet, input = data)
 }
 
 loadData <- function() {
-  #grab the google sheet
+  # grab the google sheet
   sheet <- gs_title(table)
-  #read the data
+  # read the data
   gs_read_csv(sheet)
 }
 
-#data wrangling for likelihood table
+# data wrangling for likelihood table
 likelihood <- gs_title("responses")
 like <- likelihood %>% gs_read(ws = "Sheet1")
 l <- like %>% group_by(team, player, location) %>% summarise(n = n())
@@ -152,17 +152,17 @@ dataF <- l %>%
   summarize(percent := n / sum(n) * 100, by = "team,player,location")
 
 
-#server
+# server
 server <- function(input, output, session) {
-  #collect form data
+  # collect form data
   formData <- reactive({
     data <- sapply(fields, function(x) input[[x]])
     data
   })
-  #save form data when submit button is clicked
+  # save form data when submit button is clicked
   observeEvent(input$submit, {
     saveData(formData())
-    #after submit, defaul team to UST
+    # after submit, defaul team to UST
     updateSelectInput(session, "team",
       choices = c(
         "Augsburg University",
@@ -184,9 +184,9 @@ server <- function(input, output, session) {
         "Other"
       ), selected = "University of St. Thomas"
     )
-    #after submit, defaul player to 0
+    # after submit, defaul player to 0
     updateNumericInput(session, "player", value = 0)
-    #after submit, defaul pitch to fastball
+    # after submit, defaul pitch to fastball
     updateSelectInput(session, "pitch",
       choices = c(
         "Fastball",
@@ -195,9 +195,9 @@ server <- function(input, output, session) {
         "Change Up"
       ), selected = "Fastball"
     )
-    #after submit, defaul location to 0
+    # after submit, defaul location to 0
     updateNumericInput(session, "location", value = 0)
-    #after submit, defaul hit to none
+    # after submit, defaul hit to none
     updateSelectInput(session, "hit",
       choices = c(
         "None",
@@ -206,7 +206,7 @@ server <- function(input, output, session) {
         "Pop Fly"
       ), selected = "None"
     )
-    #after submit, defaul result to out
+    # after submit, defaul result to out
     updateSelectInput(session, "result",
       choices = c(
         "Out",
@@ -218,17 +218,17 @@ server <- function(input, output, session) {
       ), selected = "Out"
     )
   })
-  #show previous responses update with current response when submit is clicked
+  # show previous responses update with current response when submit is clicked
   output$responses <- DT::renderDataTable({
     input$submit
     loadData()
   })
-  #display likelihood data table 
+  # display likelihood data table
   output$likeli <- DT::renderDataTable(
     dataF,
     filter = "top"
   )
 }
 
-#run the app
+# run the app
 shinyApp(ui = ui, server = server)
