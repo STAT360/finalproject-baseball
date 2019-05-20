@@ -147,10 +147,6 @@ loadData <- function() {
 likelihood <- gs_title("responses")
 like <- likelihood %>% gs_read(ws = "Sheet1")
 l <- like %>% group_by(team, player, location) %>% summarise(n = n())
-dataF <- l %>%
-  group_by(team, player, location, n) %>%
-  summarize(percent := n / sum(n) * 100, by = "team,player,location")
-
 
 # server
 server <- function(input, output, session) {
@@ -225,7 +221,7 @@ server <- function(input, output, session) {
   })
   # display likelihood data table
   output$likeli <- DT::renderDataTable(
-    dataF,
+    l,
     filter = "top"
   )
 }
