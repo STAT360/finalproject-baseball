@@ -32,7 +32,6 @@ following code into the console:
 library(googlesheets) 
 options(httr_oob_default=TRUE) 
 gs_auth(new_user = TRUE) 
-gs_ls()
 ```
 
 You will be given a URL to click on and given a authorization code in
